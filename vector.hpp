@@ -4,7 +4,7 @@
 # define VECTOR_HPP
 namespace ft
 {
-/* begin namespace ft */
+/*** begin namespace ft ***/
 template< class T, class Allocator = std::allocator<T> >
 class vector
 {
@@ -31,13 +31,48 @@ public:
 	/** constructors **/
 	explicit vector (const allocator_type& alloc = allocator_type())
 		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
-		{};
-	explicit vector (size_type n, const value_type& val = value_type(),const allocator_type& alloc = allocator_type());
-	template <class InputIterator>
-	vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type());
-	vector (const vector& x);
-	/** destructors **/
+		{ _array = _allocator.allocate(0); };
+	explicit vector (size_type n, const value_type& val = value_type()
+	, const allocator_type& alloc = allocator_type())
+		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
+	{
+		_array = _allocator.allocate(0);
+		assign(n, val);
+	};
+	template <class InputIterator> vector (InputIterator first
+	, InputIterator last, const allocator_type& alloc = allocator_type())
+		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
+	{
+		_array = _allocator.allocate(0);
+		assign<InputIterator>(begin, end);
+	};
+	vector (const vector& x)
+		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
+	{
+		_array = _allocator.allocate(0);
+		insert(begin(), x.begin(), x.end());
+	};
+	/** destructor **/
+	~vector ()
+	{
+		pointer	ptr = _array;
+		while (_size > 0)
+		{
+			_allocator.destroy(ptr);
+			ptr ++;
+			size --;
+		}
+		_allocator.deallocate(_array, capacity());
+	}
+	/** assign content **/
+	vector& operator= (const vector& x)
+	{
+		if (&x == this)
+			return *this;
+		clear();
+		insert(begin(), x.begin(), x.end());
+	}
 }
-/* end namespace ft */
+/*** end namespace ft ***/
 }
 #endif
