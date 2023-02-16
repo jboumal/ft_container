@@ -60,7 +60,7 @@ public:
 		{
 			_allocator.destroy(ptr);
 			ptr ++;
-			size --;
+			_size --;
 		}
 		_allocator.deallocate(_array, capacity());
 	}
@@ -131,16 +131,16 @@ public:
 	}
 	size_type capacity() const
 	{
-		return (_capacity);
+		return _capacity;
 	}
 	bool empty() const
 	{
-		return (_size == 0);
+		return _size == 0;
 	}
 	void reserve (size_type n)
 	{
 		pointer tmp = _allocator.allocate(n);
-		for (size_type i = 0; i < _size, i++)
+		for (size_type i = 0; i < _size; i++)
 		{
 			_allocator.construct(tmp + i, _array[i]);
 			_allocator.destroy(_array + i);
@@ -150,8 +150,106 @@ public:
 		_capacity = n;
 	}
 /* ----------------------------- element access ----------------------------- */
- 
+	reference operator[] (size_type n)
+	{
+		return _array[n];
+	}
+	const_reference operator[] (size_type n) const
+	{
+		return _array[n];
+	}
+	reference at (size_type n)
+	{
+		if (n >= _size)
+		{
+			throw std::out_of_range("index out of bounds");
+		}
+		else
+		{
+			return _array[n];
+		}
+	}
+	const_reference at (size_type n) const
+	{
+		if (n >= _size)
+		{
+			throw std::out_of_range("index out of bounds");
+		}
+		else
+		{
+			return _array[n];
+		}
+	}
+	reference front()
+	{
+		return *begin();
+	}
+	const_reference front() const
+	{
+		return *begin();
+	}
+	reference back()
+	{
+		return *rbegin();
+	}
+	const_reference back() const
+	{
+		return *rbegin();
+	}
 }
+/* ------------------------------- modifiers -------------------------------- */
+template <class InputIterator>
+void assign (InputIterator first, InputIterator last)
+{
+	clear();
+	insert(begin(), first, last);
+}
+void assign (size_type n, const value_type& val)
+{
+	clear();
+	insert(begin(), n, val)
+}
+void push_back (const value_type& val)
+{
+	if (_size + 1 >= max_size())
+	{
+		throw std::length_error("vector too big");
+	}
+	if (_size == _capacity)
+		reserve (_capacity + 1);
+	_allocator.construct(_array + _size, val);
+	_size ++;
+}
+void pop_back();
+{
+	_allocator.destroy(_array + _size - 1);
+	_size --;
+}
+iterator insert (iterator position, const value_type& val)
+{
+
+}
+void insert (iterator position, size_type n, const value_type& val)
+{
+	if (n == 0) return;
+	if (n + size() > max_size())
+	{
+		throw std::out_of_range("index out of bounds");
+	}
+	if (_size + n > capacity)
+	{
+		reserve(_size + n);
+	}
+
+	//if (_size + n >= max_size()) throw std::length_error("vector too big");
+	
+}
+template <class InputIterator>
+void insert (iterator position, InputIterator first, InputIterator last)
+{
+
+}
+
 /*** end namespace ft ***/
 }
 #endif
