@@ -2,6 +2,9 @@
 
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
+# include <cstddef>
+# include <stdexcept>
+
 namespace ft
 {
 /*** begin namespace ft ***/
@@ -30,24 +33,24 @@ private:
 public:
 /* ------------------------------ constructors ------------------------------ */
 	explicit vector (const allocator_type& alloc = allocator_type())
-		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
+		: _allocator(alloc), _size(0), _capacity(0), _array(NULL)
 		{ _array = _allocator.allocate(0); }
 	explicit vector (size_type n, const value_type& val = value_type()
 	, const allocator_type& alloc = allocator_type())
-		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
+		: _allocator(alloc), _size(n), _capacity(n), _array(NULL)
 	{
 		_array = _allocator.allocate(0);
 		assign(n, val);
 	}
 	template <class InputIterator> vector (InputIterator first
 	, InputIterator last, const allocator_type& alloc = allocator_type())
-		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
+		: _allocator(alloc), _size(0), _capacity(0), _array(NULL)
 	{
 		_array = _allocator.allocate(0);
-		assign<InputIterator>(begin, end);
+		assign<InputIterator>(first, last);
 	}
 	vector (const vector& x)
-		: _allocator(alloc), _size(0), _capacity(0), _container(NULL)
+		: _allocator(x._allocator), _size(0), _capacity(0), _array(NULL)
 	{
 		_array = _allocator.allocate(0);
 		insert(begin(), x.begin(), x.end());
@@ -71,6 +74,7 @@ public:
 			return *this;
 		clear();
 		insert(begin(), x.begin(), x.end());
+		return *this;
 	}
 /* -------------------------------- iterators ------------------------------- */
 	iterator				begin()
@@ -232,7 +236,7 @@ iterator insert (iterator position, const value_type& val)
 void insert (iterator position, size_type n, const value_type& val)
 {
 	if (n == 0) return;
-	if (n + size() > max_size())
+	if (position < begin() || position > end())
 	{
 		throw std::out_of_range("index out of bounds");
 	}
@@ -240,9 +244,15 @@ void insert (iterator position, size_type n, const value_type& val)
 	{
 		reserve(_size + n);
 	}
-
-	//if (_size + n >= max_size()) throw std::length_error("vector too big");
-	
+	for (iterator it = rbegin(); it >= position; it--)
+	{
+		*it = *(it - n);
+	}
+	for (size_type i = 0; i < n; i++)
+	{
+		*(position + i) = val;
+	}
+	_size += n;
 }
 template <class InputIterator>
 void insert (iterator position, InputIterator first, InputIterator last)
